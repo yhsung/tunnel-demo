@@ -1,40 +1,52 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
-void main() => runApp(const NeoTunnelApp());
+import 'fractals.dart';
 
-class NeoTunnelApp extends StatelessWidget {
-  const NeoTunnelApp({super.key});
+void main() => runApp(const FractalZoomApp());
+
+class FractalZoomApp extends StatelessWidget {
+  const FractalZoomApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Neo Tunnel',
+      title: 'Fractal Zoom',
       theme: ThemeData.dark(),
-      home: const TunnelPage(),
+      home: const FractalPage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class TunnelPage extends StatefulWidget {
-  const TunnelPage({super.key});
+enum FractalType { mandelbrot, julia, sierpinski, koch, fern }
+
+class FractalPage extends StatefulWidget {
+  const FractalPage({super.key});
 
   @override
-  State<TunnelPage> createState() => _TunnelPageState();
+  State<FractalPage> createState() => _FractalPageState();
 }
 
-class _TunnelPageState extends State<TunnelPage>
+class _FractalPageState extends State<FractalPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  FractalType _type = FractalType.mandelbrot;
+  late final Map<FractalType, List<math.Point<double>>> _data;
 
   @override
   void initState() {
     super.initState();
+    _data = {
+      FractalType.mandelbrot: generateMandelbrot(),
+      FractalType.julia: generateJulia(),
+      FractalType.sierpinski: generateSierpinski(),
+      FractalType.koch: generateKoch(),
+      FractalType.fern: generateFern(),
+    };
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 20),
+      duration: const Duration(seconds: 10),
     )..repeat();
   }
 
@@ -47,11 +59,38 @@ class _TunnelPageState extends State<TunnelPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Fractal Zoom'),
+        actions: [
+          DropdownButton<FractalType>(
+            value: _type,
+            dropdownColor: Colors.grey[900],
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _type = value);
+              }
+            },
+            items: FractalType.values
+                .map(
+                  (f) => DropdownMenuItem(
+                    value: f,
+                    child: Text(f.name),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
+          final zoom = math.pow(1.02, _controller.value * 200).toDouble();
           return CustomPaint(
-            painter: _TunnelPainter(depth: _controller.value * 60),
+            painter: _FractalPainter(
+              points: _data[_type]!,
+              zoom: zoom,
+              connect: _type == FractalType.koch,
+            ),
             child: Container(),
           );
         },
@@ -60,35 +99,41 @@ class _TunnelPageState extends State<TunnelPage>
   }
 }
 
-class _TunnelPainter extends CustomPainter {
-  _TunnelPainter({required this.depth});
+class _FractalPainter extends CustomPainter {
+  _FractalPainter({required this.points, required this.zoom, this.connect = false});
 
-  final double depth;
+  final List<math.Point<double>> points;
+  final double zoom;
+  final bool connect;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
+    final scale = math.min(size.width, size.height) / 2;
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.scale(scale * zoom, -scale * zoom);
+
     final paint = Paint()
+      ..color = Colors.white
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..color = Colors.cyanAccent;
+      ..strokeWidth = 1 / scale;
 
-    const int lines = 40;
-    const double spacing = 20;
-
-    for (int i = 0; i < lines; i++) {
-      final double d = (i - depth) * spacing;
-      final double scale = math.pow(1.05, d).toDouble();
-      final rect = Rect.fromCenter(
-        center: center,
-        width: size.width / scale,
-        height: size.height / scale,
+    if (connect) {
+      final path = Path()..moveTo(points.first.x, points.first.y);
+      for (var p in points.skip(1)) {
+        path.lineTo(p.x, p.y);
+      }
+      canvas.drawPath(path, paint);
+    } else {
+      canvas.drawPoints(
+        PointMode.points,
+        points.map((p) => Offset(p.x, p.y)).toList(),
+        paint,
       );
-      canvas.drawRect(rect, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _TunnelPainter oldDelegate) =>
-      oldDelegate.depth != depth;
+  bool shouldRepaint(covariant _FractalPainter oldDelegate) =>
+      oldDelegate.zoom != zoom || oldDelegate.points != points;
 }
+

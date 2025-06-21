@@ -1,8 +1,6 @@
 # tunnel-demo
 
-This repository contains a simple Flutter example that renders an animated
-"neo tunnel" effect.
+This repository demonstrates Flutter graphics. The `neo_tunnel` directory now contains a Flutter app that renders five famous fractals and continuously zooms into them.
 
-The Flutter source code resides in `neo_tunnel/`. To build for Android, iOS,
-macOS, or Windows, navigate into that directory and run `flutter create .`
-followed by `flutter run` for your target platform.
+To build the Flutter project for Android, iOS, macOS or Windows, change into `neo_tunnel/` and run `flutter create .` followed by `flutter run` for your chosen platform.
+

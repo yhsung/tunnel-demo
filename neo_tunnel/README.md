@@ -1,7 +1,8 @@
-# Neo Tunnel
+# Fractal Zoom Flutter App
 
-A simple cross-platform Flutter app that shows an animated "neo tunnel" effect.
+This directory contains a simple cross-platform Flutter application that renders five famous fractals and continuously zooms into them.
 
-This project includes only the Dart source and `pubspec.yaml`. To build for a
-specific platform (Android, iOS, macOS, or Windows), run `flutter create .` in
-this directory to generate the platform folders, then use `flutter run`.
+The app includes the Mandelbrot set, a Julia set, the Sierpinski triangle, the Koch snowflake, and the Barnsley fern. Use the drop-down menu in the app bar to switch between fractals.
+
+Only the Dart sources and `pubspec.yaml` are stored in this repo. To build for a particular platform (Android, iOS, macOS, or Windows), run `flutter create .` in this directory, then execute `flutter run` for your target platform.
+
