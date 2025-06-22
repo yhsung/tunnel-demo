@@ -1,7 +1,12 @@
 import 'dart:math' as math;
 
 /// Generate points for the Mandelbrot set normalized to [-1, 1].
-List<math.Point<double>> generateMandelbrot({int resolution = 200, int maxIter = 50}) {
+///
+/// The [detail] parameter increases both resolution and iteration depth
+/// exponentially, allowing the fractal to reveal more structure when zooming.
+List<math.Point<double>> generateMandelbrot({int detail = 0}) {
+  final resolution = 200 * (detail + 1);
+  final maxIter = 50 + detail * 20;
   const double xmin = -2.0;
   const double xmax = 1.0;
   const double ymin = -1.5;
@@ -31,7 +36,11 @@ List<math.Point<double>> generateMandelbrot({int resolution = 200, int maxIter =
 }
 
 /// Generate points for a Julia set normalized to [-1, 1].
-List<math.Point<double>> generateJulia({int resolution = 200, int maxIter = 50}) {
+///
+/// The optional [detail] parameter increases resolution and iteration depth.
+List<math.Point<double>> generateJulia({int detail = 0}) {
+  final resolution = 200 * (detail + 1);
+  final maxIter = 50 + detail * 20;
   const double xmin = -1.5;
   const double xmax = 1.5;
   const double ymin = -1.5;
@@ -63,7 +72,9 @@ List<math.Point<double>> generateJulia({int resolution = 200, int maxIter = 50})
 }
 
 /// Generate Sierpinski triangle points using the chaos game.
-List<math.Point<double>> generateSierpinski({int iterations = 10000}) {
+/// [detail] increases the number of iterations exponentially.
+List<math.Point<double>> generateSierpinski({int detail = 0}) {
+  final iterations = 10000 * (detail + 1);
   final vertices = [
     math.Point(-1.0, -1.0),
     math.Point(1.0, -1.0),
@@ -81,7 +92,9 @@ List<math.Point<double>> generateSierpinski({int iterations = 10000}) {
 }
 
 /// Generate Barnsley fern points normalized roughly to [-1, 1].
-List<math.Point<double>> generateFern({int iterations = 20000}) {
+/// [detail] increases the number of iterations.
+List<math.Point<double>> generateFern({int detail = 0}) {
+  final iterations = 20000 * (detail + 1);
   final rng = math.Random(0);
   var x = 0.0;
   var y = 0.0;
@@ -112,7 +125,9 @@ List<math.Point<double>> generateFern({int iterations = 20000}) {
 }
 
 /// Generate points for the Koch snowflake outline.
-List<math.Point<double>> generateKoch({int iterations = 4}) {
+/// [detail] controls the recursion depth of the snowflake.
+List<math.Point<double>> generateKoch({int detail = 0}) {
+  final iterations = 4 + detail;
   var path = <math.Point<double>>[
     math.Point(-0.5, -math.sqrt(3) / 6),
     math.Point(0.5, -math.sqrt(3) / 6),
