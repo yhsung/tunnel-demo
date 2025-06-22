@@ -33,18 +33,29 @@ class _FractalPageState extends State<FractalPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   FractalType _type = FractalType.mandelbrot;
-  late final Map<FractalType, List<math.Point<double>>> _data;
+  final Map<FractalType, Map<int, List<math.Point<double>>>> _cache = {};
+
+  List<math.Point<double>> _getData(FractalType type, int detail) {
+    final byDetail = _cache.putIfAbsent(type, () => {});
+    return byDetail.putIfAbsent(detail, () {
+      switch (type) {
+        case FractalType.mandelbrot:
+          return generateMandelbrot(detail: detail);
+        case FractalType.julia:
+          return generateJulia(detail: detail);
+        case FractalType.sierpinski:
+          return generateSierpinski(detail: detail);
+        case FractalType.koch:
+          return generateKoch(detail: detail);
+        case FractalType.fern:
+          return generateFern(detail: detail);
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    _data = {
-      FractalType.mandelbrot: generateMandelbrot(),
-      FractalType.julia: generateJulia(),
-      FractalType.sierpinski: generateSierpinski(),
-      FractalType.koch: generateKoch(),
-      FractalType.fern: generateFern(),
-    };
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
@@ -86,9 +97,11 @@ class _FractalPageState extends State<FractalPage>
         animation: _controller,
         builder: (context, child) {
           final zoom = math.pow(1.02, _controller.value * 200).toDouble();
+          final detail = (math.log(zoom) / math.log(2)).floor();
+          final points = _getData(_type, detail);
           return CustomPaint(
             painter: _FractalPainter(
-              points: _data[_type]!,
+              points: points,
               zoom: zoom,
               connect: _type == FractalType.koch,
             ),
