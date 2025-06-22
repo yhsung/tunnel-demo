@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
@@ -100,7 +101,8 @@ class _FractalPageState extends State<FractalPage>
 }
 
 class _FractalPainter extends CustomPainter {
-  _FractalPainter({required this.points, required this.zoom, this.connect = false});
+  _FractalPainter(
+      {required this.points, required this.zoom, this.connect = false});
 
   final List<math.Point<double>> points;
   final double zoom;
@@ -136,4 +138,3 @@ class _FractalPainter extends CustomPainter {
   bool shouldRepaint(covariant _FractalPainter oldDelegate) =>
       oldDelegate.zoom != zoom || oldDelegate.points != points;
 }
-
