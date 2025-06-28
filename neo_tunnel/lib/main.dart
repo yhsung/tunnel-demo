@@ -20,7 +20,7 @@ class FractalZoomApp extends StatelessWidget {
   }
 }
 
-enum FractalType { mandelbrot, julia, sierpinski, koch, fern }
+enum FractalType { mandelbrot, julia, burningShip, sierpinski, koch, fern }
 
 class FractalPage extends StatefulWidget {
   const FractalPage({super.key});
@@ -43,6 +43,8 @@ class _FractalPageState extends State<FractalPage>
           return generateMandelbrot(detail: detail);
         case FractalType.julia:
           return generateJulia(detail: detail);
+        case FractalType.burningShip:
+          return generateBurningShip(detail: detail);
         case FractalType.sierpinski:
           return generateSierpinski(detail: detail);
         case FractalType.koch:

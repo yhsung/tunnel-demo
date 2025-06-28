@@ -146,8 +146,13 @@ List<math.Point<double>> generateKoch({int detail = 0}) {
       final pd = math.Point(p1.x + 2 * dx, p1.y + 2 * dy);
       final angle = math.atan2(p2.y - p1.y, p2.x - p1.x) - math.pi / 3;
       final dist = math.sqrt(dx * dx + dy * dy);
-      final pc = math.Point(pb.x + dist * math.cos(angle), pb.y + dist * math.sin(angle));
-      newPath..add(pa)..add(pb)..add(pc)..add(pd);
+      final pc = math.Point(
+          pb.x + dist * math.cos(angle), pb.y + dist * math.sin(angle));
+      newPath
+        ..add(pa)
+        ..add(pb)
+        ..add(pc)
+        ..add(pd);
     }
     newPath.add(path.last);
     path = newPath;
@@ -155,3 +160,40 @@ List<math.Point<double>> generateKoch({int detail = 0}) {
   return path;
 }
 
+/// Generate points for the Burning Ship fractal normalized to [-1, 1].
+///
+/// The [detail] parameter increases both resolution and iteration depth.
+List<math.Point<double>> generateBurningShip({int detail = 0}) {
+  final resolution = 200 * (detail + 1);
+  final maxIter = 50 + detail * 20;
+  // Coordinates that frame the Burning Ship fractal well.
+  const double xmin = -2.5;
+  const double xmax = 1.5;
+  const double ymin = -2.0;
+  const double ymax = 1.0;
+  final points = <math.Point<double>>[];
+  for (int i = 0; i < resolution; i++) {
+    for (int j = 0; j < resolution; j++) {
+      final a = xmin + (xmax - xmin) * i / resolution;
+      final b = ymin + (ymax - ymin) * j / resolution;
+      double x = 0;
+      double y = 0;
+      int iter = 0;
+      while (x * x + y * y <= 4 && iter < maxIter) {
+        // The core difference from Mandelbrot: use absolute values.
+        final xNew = x * x - y * y + a;
+        y = (2 * x * y).abs() + b;
+        x = xNew;
+        iter++;
+      }
+      // We plot the points that "escape" to see the interesting structure.
+      if (iter < maxIter) {
+        // Normalize the point to fit within the [-1, 1] view.
+        final nx = (a + 0.5) / 2.0;
+        final ny = (b + 0.5) / 1.5;
+        points.add(math.Point(nx, ny));
+      }
+    }
+  }
+  return points;
+}
